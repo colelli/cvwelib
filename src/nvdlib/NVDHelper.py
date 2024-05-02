@@ -16,6 +16,8 @@ def __get_json_data_from_xz(url: str):
             Method to retrieve data in .json.xz format from a given url, decompress it and return it in json format
         Params:
             :param url: the url to fetch data from
+        Returns:
+            The requested .json data
     """
     response = requests.get(url)
     decompressed_data = lzma.decompress(response.content)
@@ -67,14 +69,26 @@ def check_for_updates():
         logging.info(f'Data updated for years: {[year for year in modified_years]}')
 
 
-def save_one_year_json(year: int = datetime.now().year):
+def start_up_server(debug: bool = False) -> bool:
+    """
+        Desc:
+            Method to start-up the local sever
+        Returns:
+            True if the start-up process ends correctly
+    """
+    if debug:
+        return True
+    return save_all_years_json()
+
+
+def save_one_year_json(year: int):
     """
         Desc:
             This method allows the retrieval (and local save) of a specified year CVE dataset from the following repository:
             https://github.com/fkie-cad/nvd-json-data-feeds by fkie-cad
             The data is downloaded in .xz format, extracted and saved to .json in the local /data folder in the format 'CVE-<YEAR>.json'.
         Params:
-            :param year: The desired year to fetch - current year by default
+            :param year: The desired year to fetch
         Raises:
             :raises ValueError: if the selected year is not valid. Must be in the range [1999, datetime.now().year]
     """
@@ -87,16 +101,50 @@ def save_one_year_json(year: int = datetime.now().year):
     save_to_json_file(formatted_data, f'CVE-{year}.json')
 
 
-def save_all_years_json():
+def save_all_years_json() -> bool:
     """
         Desc:
             This method allows the retrieval (and local save) of all available year CVE datasets from the following repository:
             https://github.com/fkie-cad/nvd-json-data-feeds by fkie-cad
             The data is downloaded in .xz format, extracted and saved to .json in the local /data folder in the format 'CVE-<YEAR>.json'.
+        Returns:
+            True if the process ends correctly
     """
     cve_all = {}
     for year in range(1999, datetime.now().year + 1):
-        save_one_year_json(year)
+        try:
+            save_one_year_json(year)
+        except:
+            return False
+    return True
 
 
-save_all_years_json()
+def get_one_year_json(year: int):
+    """
+        Desc:
+            Method to get all the CVEs from the specicied year
+        Returns:
+            The reqeusted data
+    """
+    return get_json_from_file(f'CVE-{year}.json')
+
+
+def get_one_cve(cveId: str) -> dict:
+    """
+        Desc: 
+            Method to retrieve the specified CVE-ID data
+        Params:
+            :param cveId: The requested CVE-ID
+        Returns:
+            The requested CVE-ID data or empty dict if not found
+        Raises:
+            :raises ValueError: if the specified CVE-ID is badly formatted
+    """
+    tokens =  cveId.split('-')
+    if len(tokens) < 3:
+        raise ValueError('Badly formatted CVE-ID!')
+    data = get_one_year_json(tokens[1])
+    for cve in data['cve_items']:
+        if cve['id'] == cveId:
+            return cve
+    return {}
