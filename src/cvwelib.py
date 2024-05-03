@@ -44,9 +44,11 @@ def get_cve():
     # Call requested end-point result
     for arg in args:
         if arg == 'cveId':
-            return nh.get_one_cve(args[arg] if args[arg] != "" else abort(400))
+            return nh.get_one_cve_from_id(args[arg] if args[arg].strip() != "" else abort(400))
         if arg == 'year':
-            return nh.get_one_year_json(args[arg] if args[arg] != "" else abort(400))
+            return nh.get_one_year_json(args[arg] if args[arg].strip() != "" else abort(400))
+        if arg == 'keywordSearch':
+            return nh.get_one_cve_from_desc(args[arg] if args[arg].strip() != "" else abort(400), True if 'keywordExactMatch' in args.keys() else False)
         
 
 # App start up

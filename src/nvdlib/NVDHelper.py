@@ -119,7 +119,7 @@ def save_all_years_json() -> bool:
     return True
 
 
-def get_one_year_json(year: int):
+def get_one_year_json(year: int) -> dict:
     """
         Desc:
             Method to get all the CVEs from the specicied year
@@ -129,7 +129,7 @@ def get_one_year_json(year: int):
     return get_json_from_file(f'CVE-{year}.json')
 
 
-def get_one_cve(cveId: str) -> dict:
+def get_one_cve_from_id(cveId: str) -> dict:
     """
         Desc: 
             Method to retrieve the specified CVE-ID data
@@ -148,3 +148,38 @@ def get_one_cve(cveId: str) -> dict:
         if cve['id'] == cveId:
             return cve
     return {}
+
+
+def get_one_cve_from_desc(keyword: str, exact_match: bool) -> list:
+    """
+        Desc:
+            Method to retrieve all matching CVEs based on the given keyword.
+            The method looks for the keywords in the CVE description and can be of two types:
+            - exact_match = False -> every keyword is evaluated individually
+            - exact_match = True -> keyword must match exactly
+        Params:
+            :param keyword: The given keyword to look for
+            :param exact_match: The boolean value to specify search mode
+        Returns:
+            The list of all matching CVEs
+    """
+    out = []
+    if exact_match:
+        # We look for an exact match
+        for year in range(1999, datetime.now().year + 1):
+            result = get_one_year_json(year)
+            for cve in result['cve_items']:
+                if keyword in (cve['descriptions'])[0]['value']:
+                    out.append(cve)
+    else:
+        # We look for any keyword match
+        keywords = keyword.split(" ")
+        for year in range(1999, datetime.now().year + 1):
+            result = get_one_year_json(year)
+            for cve in result['cve_items']:
+                for key in keywords:
+                    if key in (cve['descriptions'])[0]['value']:
+                        out.append(cve)
+                        break
+    return out
+
