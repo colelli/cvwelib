@@ -150,7 +150,7 @@ def get_one_cve_from_id(cveId: str) -> dict:
     return {}
 
 
-def get_one_cve_from_desc(keyword: str, exact_match: bool) -> list:
+def get_cves_from_desc(keyword: str, exact_match: bool) -> list:
     """
         Desc:
             Method to retrieve all matching CVEs based on the given keyword.
@@ -183,3 +183,24 @@ def get_one_cve_from_desc(keyword: str, exact_match: bool) -> list:
                         break
     return out
 
+
+def get_one_cve_from_cwe(cweId: str):
+    """
+        Desc:
+            Method to retrieve all CVEs related to the given CWE-ID.
+        Params:
+            :param cweId: The requested CWE-ID
+        Returns:
+            The list of all CVEs related to the requeste CWE
+    """
+    out = []
+    for year in range(1999, datetime.now().year + 1):
+        result = get_one_year_json(year)
+        for cve in result['cve_items']:
+            if 'weaknesses' not in cve.keys():
+                continue
+            for cwe in cve['weaknesses']:
+                if ((cwe['description'])[0])['value'] == cweId:
+                    out.append(cve)
+                    break
+    return out
