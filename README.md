@@ -23,21 +23,21 @@ cvwelib provides the following request parameters:
 
 ### Request examples
 
-'''plain
+```plain
     127.0.0.1:8080/api/get_cve?year=<YEAR> # Get all CVEs related to inputted year
-'''
+```
 
-'''plain
+```plain
     127.0.0.1:8080/api/get_cve?cveId=<CVE-ID> # Get data for the specied CVE-ID
-'''
+```
 
-'''plain
+```plain
     127.0.0.1:8080/api/get_cve?keywordSearch=<KEY-WORD> # Get all CVEs containing any specified keyword in their description
-'''
+```
 
-'''plain
+```plain
     127.0.0.1:8080/api/get_cve?keywordSearch=<KEY-WORD>&keywordExactMatch # Get all CVEs matching the keyword exactly
-'''
+```
 
 
 ## Non-Endorsement Clause
