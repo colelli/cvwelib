@@ -4,7 +4,6 @@ import logging
 logging.basicConfig(stream = sys.stderr, level = logging.DEBUG)
 from datetime import datetime
 from utils.Utils import save_to_json_file, get_json_from_file
-from pprint import pprint
 import requests
 import lzma
 import json

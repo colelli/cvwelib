@@ -152,4 +152,4 @@ cython_debug/
 #.idea/
 
 # other dirs
-data/
+_data/
