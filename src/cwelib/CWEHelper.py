@@ -26,6 +26,14 @@ def __get_json_data_from_xml(xml_data):
 
 
 def save_cwe_json() -> bool:
+    """
+        Desc:
+            This method allows the retrieval (and local save) of the CWE dataset from the following source:
+            https://cwe.mitre.org/data/downloads.html by The MITRE Corporation
+            The data is downloaded in .zip format, extracted, converted and saved to .json in the local /_data folder in the format 'CWE-All.json'.
+        Returns:
+            True if the saving process ends successfully
+    """
     result = requests.get('https://cwe.mitre.org/data/xml/cwec_latest.xml.zip')
     data_dict = __get_json_data_from_zip(result.content)
     try:
@@ -53,10 +61,22 @@ def update_data():
 
 
 def get_all_cwes() -> dict:
+    """
+        Desc:
+            Method to get all CWEs and extra information
+        Returns:
+            Dictionary of all info fetched from JSON format
+    """
     return get_json_from_file('CWE-All.json')
 
 
 def get_cwe_from_id(cweId: str) -> dict:
+    """
+        Desc:
+            Method to get CWE data based on given CWE-ID
+        Returns:
+            Dictionary of all available information for the given CWE-ID
+    """
     data = get_all_cwes()
     for cwe in data['weaknesses']:
         if cwe['id'] == cweId:
@@ -65,6 +85,13 @@ def get_cwe_from_id(cweId: str) -> dict:
 
 
 def get_cwe_parents(cweId: str) -> list:
+    """
+        Desc:
+            Method to fetch all the parents CWEs of a given CWE-ID
+        Returns:
+            A list of all parent CWEs of the specified ID. 
+            The list contains all information for each parent CWE
+    """
     out = []
     data = get_cwe_from_id(cweId)
     for rel in data['related_cwes']:
@@ -74,6 +101,13 @@ def get_cwe_parents(cweId: str) -> list:
 
 
 def get_cwe_children(cweId: str) -> list:
+    """
+        Desc:
+            Method to fetch all the children CWEs of a given CWE-ID
+        Returns:
+            A list of all children CWEs of the specified ID.
+            The list contains all information for each children CWE
+    """
     out = []
     data = get_all_cwes()
     for cwe in data['weaknesses']:

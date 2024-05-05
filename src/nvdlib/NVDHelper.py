@@ -85,7 +85,7 @@ def save_one_year_json(year: int):
         Desc:
             This method allows the retrieval (and local save) of a specified year CVE dataset from the following repository:
             https://github.com/fkie-cad/nvd-json-data-feeds by fkie-cad
-            The data is downloaded in .xz format, extracted and saved to .json in the local /data folder in the format 'CVE-<YEAR>.json'.
+            The data is downloaded in .xz format, extracted and saved to .json in the local /_data folder in the format 'CVE-<YEAR>.json'.
         Params:
             :param year: The desired year to fetch
         Raises:

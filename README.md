@@ -73,3 +73,4 @@ CWE API Examples
 ## Non-Endorsement Clause
 
 As the previously mentioned repo, this project uses and redistributes data from the NVD API but is not endorsed or certified by the NVD.
+In addition, this project uses and redistributes data from The MITRE Corporation but is not endorsed or certified by The MITRE Corporation.

@@ -6,7 +6,7 @@ import json
 
 
 def get_json_from_file(filename: str, path: str = './src/_data/'):
-    with open(f"{path}{filename}", "r") as file:
+    with open(f"{path}{filename}", "r", encoding='utf-8') as file:
         return json.load(file)
 
 
