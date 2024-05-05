@@ -50,3 +50,34 @@ def start_up_server(debug: bool = False) -> bool:
 def update_data():
     if not save_cwe_json():
         logging.debug("Error occurred during CWE data")
+
+
+def get_all_cwes() -> dict:
+    return get_json_from_file('CWE-All.json')
+
+
+def get_cwe_from_id(cweId: str) -> dict:
+    data = get_all_cwes()
+    for cwe in data['weaknesses']:
+        if cwe['id'] == cweId:
+            return cwe
+    return {}
+
+
+def get_cwe_parents(cweId: str) -> list:
+    out = []
+    data = get_cwe_from_id(cweId)
+    for rel in data['related_cwes']:
+        if rel['nature'] == 'ChildOf':
+            out.append(get_cwe_from_id(rel['id']))
+    return out
+
+
+def get_cwe_children(cweId: str) -> list:
+    out = []
+    data = get_all_cwes()
+    for cwe in data['weaknesses']:
+        for rel in cwe['related_cwes']:
+            if rel['id'] == cweId and rel['nature'] == 'ChildOf':
+                out.append(cwe)
+    return out

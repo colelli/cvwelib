@@ -65,6 +65,15 @@ def get_cwe():
         abort(403)
     
     # Call requested end-point result
+    for arg in args:
+        if arg == 'all':
+            return ch.get_all_cwes()
+        if arg == 'cweId':
+            return ch.get_cwe_from_id(args[arg] if args[arg].strip() != "" else abort(400))
+        if arg == 'getParents':
+            return ch.get_cwe_parents(args[arg] if args[arg].strip() != "" else abort(400))
+        if arg == 'getChildren':
+            return ch.get_cwe_children(args[arg] if args[arg].strip() != "" else abort(400))
 
 
 # App start up
