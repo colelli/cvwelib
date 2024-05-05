@@ -5,12 +5,14 @@ import sys
 sys.path.append('src')
 import logging
 import nvdlib.NVDHelper as nh
+import cwelib.CWEHelper as ch
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
 __scheduler = BackgroundScheduler()
 __scheduler.add_job(func=nh.check_for_updates, trigger="cron", hour=0, minute = 30)
+__scheduler.add_job(func=ch.update_data, trigger='cron', day='1st Sat', hour=0, minute=30)
 __scheduler.start()
 
 def __init_app():
@@ -20,7 +22,7 @@ def __init_app():
     with __app.app_context():
         # before_first_request
         logging.debug('Server starting up...')
-        if nh.start_up_server(debug=True):
+        if nh.start_up_server(debug=True) and ch.start_up_server(debug=False):
             logging.debug('Server ready.')
     
         return __app
@@ -52,6 +54,18 @@ def get_cve():
         if arg == 'keywordSearch':
             return nh.get_cves_from_desc(args[arg] if args[arg].strip() != "" else abort(400), True if 'keywordExactMatch' in args.keys() else False)
         
+
+@__app.route('/api/get_cwe', methods = ['GET'])
+@cross_origin()
+def get_cwe():
+    args = request.args.to_dict()
+    logging.debug(args)
+
+    if len(args) == 0:
+        abort(403)
+    
+    # Call requested end-point result
+
 
 # App start up
 if __name__ == "__main__":

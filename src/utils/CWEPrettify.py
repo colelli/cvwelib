@@ -36,101 +36,58 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
 
         # Collecting all CWEs
         if 'Related_Weaknesses' in weakness.keys():
-            if isinstance(weakness['Related_Weaknesses']['Related_Weakness'], list):
-                for cwe in weakness['Related_Weaknesses']['Related_Weakness']:
-                    item['related_cwes'].append(__map_cwe(cwe))
-            else:
-                cwe = weakness['Related_Weaknesses']['Related_Weakness']
+            for cwe in weakness['Related_Weaknesses']['Related_Weakness']:
                 item['related_cwes'].append(__map_cwe(cwe))
         
         # Collecting all platforms
         if 'Applicable_Platforms' in weakness.keys():
             for platform in weakness['Applicable_Platforms'].keys():
-                if isinstance(weakness['Applicable_Platforms'][platform], list):
-                    for subItem in weakness['Applicable_Platforms'][platform]:
-                        item['platforms'][f'{platform.lower()}'] = __map_platforms(subItem)
-                else:
-                    subItem = weakness['Applicable_Platforms'][platform]
+                for subItem in weakness['Applicable_Platforms'][platform]:
                     item['platforms'][f'{platform.lower()}'] = __map_platforms(subItem)
 
         # Collecting all alternate terms
         if 'Alternate_Terms' in weakness.keys():
-            if isinstance(weakness['Alternate_Terms']['Alternate_Term'], list):
-                for term in weakness['Alternate_Terms']['Alternate_Term']:
-                    item['alternateTerms'].append(__map_terms(term))
-            else:
-                term = weakness['Alternate_Terms']['Alternate_Term']
+            for term in weakness['Alternate_Terms']['Alternate_Term']:
                 item['alternateTerms'].append(__map_terms(term))
         
         # Collecting all consequences
         if 'Common_Consequences' in weakness.keys():
-            if isinstance(weakness['Common_Consequences']['Consequence'], list):
-                for consequence in weakness['Common_Consequences']['Consequence']:
-                    item['consequences'].append(__map_consequence(consequence))
-            else:
-                consequence = weakness['Common_Consequences']['Consequence']
+            for consequence in weakness['Common_Consequences']['Consequence']:
                 item['consequences'].append(__map_consequence(consequence))
         
         # Collecting all detection methods
         if 'Detection_Methods' in weakness.keys():
-            if isinstance(weakness['Detection_Methods']['Detection_Method'], list):
-                for detection in weakness['Detection_Methods']['Detection_Method']:
-                    item['detectionMethods'].append(__map_detection(detection))
-            else:
-                    detection = weakness['Detection_Methods']['Detection_Method']
-                    item['detectionMethods'].append(__map_detection(detection))
+            for detection in weakness['Detection_Methods']['Detection_Method']:
+                item['detectionMethods'].append(__map_detection(detection))
         
         # Collecting all mitigations
         if 'Potential_Mitigations' in weakness.keys():
-            if isinstance(weakness['Potential_Mitigations']['Mitigation'], list):
-                for mitigation in weakness['Potential_Mitigations']['Mitigation']:
-                    item['mitigations'].append(__map_mitigation(mitigation))
-            else:
-                mitigation = weakness['Potential_Mitigations']['Mitigation']
+            for mitigation in weakness['Potential_Mitigations']['Mitigation']:
                 item['mitigations'].append(__map_mitigation(mitigation))
 
         # Collecting functional areas
         if 'Functional_Areas' in weakness.keys():
-            if isinstance(weakness['Functional_Areas']['Functional_Area'], list):
-                for area in weakness['Functional_Areas']['Functional_Area']:
-                    item['functionalAreas'].append(area)
-            else:
-                area = weakness['Functional_Areas']['Functional_Area']
+            for area in weakness['Functional_Areas']['Functional_Area']:
                 item['functionalAreas'].append(area)
 
         # Collecting affected resources
         if 'Affected_Resources' in weakness.keys():
-            if isinstance(weakness['Affected_Resources']['Affected_Resource'], list):
-                for res in weakness['Affected_Resources']['Affected_Resource']:
-                    item['affectedResources'].append(res)
-            else:
-                res = weakness['Affected_Resources']['Affected_Resource']
+            for res in weakness['Affected_Resources']['Affected_Resource']:
                 item['affectedResources'].append(res)
         
         # Collecting taxonomy mappings
         if 'Taxonomy_Mappings' in weakness.keys():
-            if isinstance(weakness['Taxonomy_Mappings']['Taxonomy_Mapping'], list):
-                for tax_map in weakness['Taxonomy_Mappings']['Taxonomy_Mapping']:
-                    item['taxonomyMapping'].append(__map_taxonomy(tax_map))
-            else:
+            for tax_map in weakness['Taxonomy_Mappings']['Taxonomy_Mapping']:
                 item['taxonomyMapping'].append(__map_taxonomy(tax_map))
 
         # Collecting related attack patterns
         if 'Related_Attack_Patterns' in weakness.keys():
-            if isinstance(weakness['Related_Attack_Patterns']['Related_Attack_Pattern'], list):
-                for rel in weakness['Related_Attack_Patterns']['Related_Attack_Pattern']:
-                    item['relatedAttackPatterns'].append(__map_capec_id(rel))
-            else:
-                rel = weakness['Related_Attack_Patterns']['Related_Attack_Pattern']
+            for rel in weakness['Related_Attack_Patterns']['Related_Attack_Pattern']:
                 item['relatedAttackPatterns'].append(__map_capec_id(rel))
         
         # Collecting references
         if 'References' in weakness.keys():
-            if isinstance(weakness['References']['Reference'], list):
-                for ref in weakness['References']['Reference']:
-                    item['references'].append(__map_cwe_references(ref))
-            else:
-                ref = weakness['References']['Reference']
+            for ref in weakness['References']['Reference']:
                 item['references'].append(__map_cwe_references(ref))
 
         out['weaknesses'].append(item)
@@ -236,20 +193,12 @@ def __collect_references(raw_data: dict) -> list:
     
         # Collecting category relationships
         if 'Relationships' in category.keys():
-            if isinstance(category['Relationships']['Has_Member'], list):
-                for member in category['Relationships']['Has_Member']:
-                    item['relationships'].append(__map_category_rel(member))
-            else:
-                member = category['Relationships']['Has_Member']
+            for member in category['Relationships']['Has_Member']:
                 item['relationships'].append(__map_category_rel(member))
         
         # Collecting references
         if 'References' in category.keys():
-            if isinstance(category['References']['Reference'], list):
-                for ref in category['References']['Reference']:
-                    item['references'].append(__map_category_references(ref))
-            else:
-                ref = category['References']['Reference']
+            for ref in category['References']['Reference']:
                 item['references'].append(__map_category_references(ref))
         out.append(item)
 
