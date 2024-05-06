@@ -53,7 +53,8 @@ def get_cve():
             return nh.get_one_year_json(args[arg] if args[arg].strip() != "" else abort(400))
         if arg == 'keywordSearch':
             return nh.get_cves_from_desc(args[arg] if args[arg].strip() != "" else abort(400), True if 'keywordExactMatch' in args.keys() else False)
-        
+    
+    abort(400) # No matching function found    
 
 @__app.route('/api/get_cwe', methods = ['GET'])
 @cross_origin()
@@ -74,7 +75,8 @@ def get_cwe():
             return ch.get_cwe_parents(args[arg] if args[arg].strip() != "" else abort(400))
         if arg == 'getChildren':
             return ch.get_cwe_children(args[arg] if args[arg].strip() != "" else abort(400))
-
+    
+    abort(400) # No matching function found
 
 # App start up
 if __name__ == "__main__":
