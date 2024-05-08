@@ -118,6 +118,6 @@ def get_cwe_children(cwe_id: str) -> list:
     data = get_all_cwes()
     for cwe in data['weaknesses']:
         for rel in cwe['related_cwes']:
-            if rel['id'] == cweId and rel['nature'] == 'ChildOf':
+            if rel['id'] == cwe_id and rel['nature'] == 'ChildOf':
                 out.append(cwe)
     return out
