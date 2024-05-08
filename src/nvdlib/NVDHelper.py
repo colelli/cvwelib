@@ -3,7 +3,7 @@ sys.path.append('src')
 import logging
 logging.basicConfig(stream = sys.stderr, level = logging.DEBUG)
 from datetime import datetime
-from utils.Utils import save_to_json_file, get_json_from_file
+from utils.Utils import save_to_json_file, get_json_from_file, check_cve
 import requests
 import lzma
 import json
@@ -138,9 +138,9 @@ def get_one_cve_from_id(cve_id: str) -> dict:
         Raises:
             :raises ValueError: if the specified CVE-ID is badly formatted
     """
-    tokens =  cve_id.split('-')
-    if len(tokens) < 3:
+    if not check_cve(cve_id):
         raise ValueError('Badly formatted CVE-ID!')
+    tokens =  cve_id.split('-')
     data = get_one_year_json(tokens[1])
     for cve in data['cve_items']:
         if cve['id'] == cve_id:

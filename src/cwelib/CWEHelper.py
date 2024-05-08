@@ -38,7 +38,7 @@ def save_cwe_json() -> bool:
     data_dict = __get_json_data_from_zip(result.content)
     try:
         save_to_json_file(get_pretty_cwe_json(data_dict), 'CWE-All.json')
-    except:
+    except FileNotFoundError:
         return False
     return True
 
@@ -70,40 +70,46 @@ def get_all_cwes() -> dict:
     return get_json_from_file('CWE-All.json')
 
 
-def get_cwe_from_id(cweId: str) -> dict:
+def get_cwe_from_id(cwe_id: str) -> dict:
     """
         Desc:
             Method to get CWE data based on given CWE-ID
+        Params:
+            :param cwe_id: The requested CWE-ID
         Returns:
             Dictionary of all available information for the given CWE-ID
     """
     data = get_all_cwes()
     for cwe in data['weaknesses']:
-        if cwe['id'] == cweId:
+        if cwe['id'] == cwe_id:
             return cwe
     return {}
 
 
-def get_cwe_parents(cweId: str) -> list:
+def get_cwe_parents(cwe_id: str) -> list:
     """
         Desc:
             Method to fetch all the parents CWEs of a given CWE-ID
+        Params:
+            :param cwe_id: The children CWE-ID
         Returns:
             A list of all parent CWEs of the specified ID. 
             The list contains all information for each parent CWE
     """
     out = []
-    data = get_cwe_from_id(cweId)
+    data = get_cwe_from_id(cwe_id)
     for rel in data['related_cwes']:
         if rel['nature'] == 'ChildOf':
             out.append(get_cwe_from_id(rel['id']))
     return out
 
 
-def get_cwe_children(cweId: str) -> list:
+def get_cwe_children(cwe_id: str) -> list:
     """
         Desc:
             Method to fetch all the children CWEs of a given CWE-ID
+        Params:
+            :param cwe_id: The parent CWE-ID
         Returns:
             A list of all children CWEs of the specified ID.
             The list contains all information for each children CWE

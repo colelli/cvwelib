@@ -42,8 +42,8 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
         # Collecting all platforms
         if 'Applicable_Platforms' in weakness.keys():
             for platform in weakness['Applicable_Platforms'].keys():
-                for subItem in weakness['Applicable_Platforms'][platform]:
-                    item['platforms'][f'{platform.lower()}'] = __map_platforms(subItem)
+                for sub_item in weakness['Applicable_Platforms'][platform]:
+                    item['platforms'][f'{platform.lower()}'] = __map_platforms(sub_item)
 
         # Collecting all alternate terms
         if 'Alternate_Terms' in weakness.keys():
@@ -114,11 +114,11 @@ def __map_cwe(cwe: dict) -> dict:
     }
 
 
-def __map_platforms(subItem: dict) -> dict:
+def __map_platforms(sub_item: dict) -> dict:
     return {
-        'name': subItem['@Name'] if '@Name' in subItem.keys() else None,
-        'class': subItem['@Class'] if '@Class' in subItem.keys() else None,
-        'prevalance': subItem['@Prevalence'] if '@Prevalence' in subItem.keys() else None
+        'name': sub_item['@Name'] if '@Name' in sub_item.keys() else None,
+        'class': sub_item['@Class'] if '@Class' in sub_item.keys() else None,
+        'prevalance': sub_item['@Prevalence'] if '@Prevalence' in sub_item.keys() else None
     }
 
 

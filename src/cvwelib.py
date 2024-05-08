@@ -69,8 +69,8 @@ def __cves_from_year(year: str) -> dict:
     return nh.get_one_year_json(year if year.strip() != "" else abort(400))
 
 
-def __cves_from_desc(keyword: str, exactMatch: bool) -> dict:
-    return nh.get_cves_from_desc(keyword if keyword.strip() != "" else abort(400), exactMatch)
+def __cves_from_desc(keyword: str, exact_match: bool) -> dict:
+    return nh.get_cves_from_desc(keyword if keyword.strip() != "" else abort(400), exact_match)
 
 
 @__app.route('/api/get_cwe', methods = ['GET'])
