@@ -19,6 +19,7 @@ cvwelib provides the following request parameters:
 - CVE API
     - `year` allows to fetch all CVEs registered to a specific year
     - `cveId` allows to fetch the specifcied CVE-ID data
+    - `includeQuarantined` allows quarantined vulnerabilities (the ones with status 'Undergoing Analysis' and 'Awaiting Analysis') to be fetched
     - `cweId` allows to fetch all CVEs related to the specified CWE-ID
     - `keywordSearch` allows to fetch CVEs based on the given keyword in their description
     - `keywordExactMatch` specifies that the keyword given must exactly match
@@ -37,7 +38,11 @@ CVE API Examples
 ```
 
 ```plain
-<HOST>:<PORT>/api/get_cve?cveId=<CVE-ID> # Get data of the specied CVE-ID
+<HOST>:<PORT>/api/get_cve?cveId=<CVE-ID> # Get data of the specied CVE-ID (excludes quarantined items)
+```
+
+```plain
+<HOST>:<PORT>/api/get_cve?cveId=<CVE-ID>&includeQuarantined # Get data of the specied CVE-ID even if quarantined
 ```
 
 ```plain

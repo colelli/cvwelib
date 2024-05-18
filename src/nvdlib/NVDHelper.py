@@ -3,10 +3,14 @@ sys.path.append('src')
 import logging
 logging.basicConfig(stream = sys.stderr, level = logging.DEBUG)
 from datetime import datetime
-from utils.Utils import save_to_json_file, get_json_from_file, check_cve
+from utils.Utils import save_to_json_file, get_json_from_file, check_cve, check_cwe
 import requests
 import lzma
 import json
+
+
+__ignored_status = ['Rejected', 'Received']
+__quarantined_status = ['Undergoing Analysis', 'Awaiting Analysis']
 
 
 def __get_json_data_from_xz(url: str):
@@ -127,12 +131,14 @@ def get_one_year_json(year: int) -> dict:
     return get_json_from_file(f'CVE-{year}.json')
 
 
-def get_one_cve_from_id(cve_id: str) -> dict:
+def get_one_cve_from_id(cve_id: str, include_quarantined: bool = False) -> dict:
     """
         Desc: 
-            Method to retrieve the specified CVE-ID data
+            Method to retrieve the specified CVE-ID data. It can be specified to include quarantined vulnerabilities (default False),
+            which are CVEs awaiting or undergoing analysis and for which it is NOT guaranteed to have available metrics.
         Params:
             :param cve_id: The requested CVE-ID
+            :param include_quarantined: Requests the inclusion of quarantined vulnerabilities
         Returns:
             The requested CVE-ID data or empty dict if not found
         Raises:
@@ -143,6 +149,9 @@ def get_one_cve_from_id(cve_id: str) -> dict:
     tokens =  cve_id.split('-')
     data = get_one_year_json(tokens[1])
     for cve in data['cve_items']:
+        status = cve['vulnStatus']
+        if status in __ignored_status or (not include_quarantined and (status in __quarantined_status)):
+            continue
         if cve['id'] == cve_id:
             return cve
     return {}
@@ -192,7 +201,7 @@ def __get_any_match(keyword: str) -> list:
     return out
 
 
-def get_one_cve_from_cwe(cwe_id: str):
+def get_cves_from_cwe(cwe_id: str):
     """
         Desc:
             Method to retrieve all CVEs related to the given CWE-ID.
@@ -200,7 +209,11 @@ def get_one_cve_from_cwe(cwe_id: str):
             :param cwe_id: The requested CWE-ID
         Returns:
             The list of all CVEs related to the requeste CWE
+        Raises:
+            :raises ValueError: if the specified CWE-ID is badly formatted
     """
+    if not check_cwe(cwe_id):
+        raise ValueError('Badly formatted CWE-ID!')
     out = []
     for year in range(1999, datetime.now().year + 1):
         result = get_one_year_json(year)
