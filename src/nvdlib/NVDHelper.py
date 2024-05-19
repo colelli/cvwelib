@@ -7,6 +7,7 @@ from utils.Utils import save_to_json_file, get_json_from_file, check_cve, check_
 import requests
 import lzma
 import json
+import os
 
 
 __ignored_status = ['Rejected', 'Received']
@@ -97,6 +98,9 @@ def save_one_year_json(year: int):
     """
     if year < 1999 or year > datetime.now().year:
         raise ValueError('Invalid input value: please insert valid year from 1999 to today.')
+    
+    if not os.path.isdir("./src/_data/"):
+        os.makedirs("./src/_data/")
     
     request_link = f"https://github.com/fkie-cad/nvd-json-data-feeds/releases/latest/download/CVE-{year}.json.xz"
     formatted_data = __get_json_data_from_xz(request_link)

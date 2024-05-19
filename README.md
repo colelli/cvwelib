@@ -13,6 +13,12 @@ In case of an existing server, the data will be automatically updated each day b
 CVE-Modified.json # CVEs that were modified or added in the previous eight days
 ```
 
+### Before running the code
+
+Since the code is still in development, before running it for the first time, it is adviced to open the `cvwelib.py` file and change
+the `debug` mode from `True` to `False` on line 25. This will allow the script to download all the necessary data at each server start-up. As of
+right now it is intended to be set on `True` as the code undergoes modifications.
+
 ## Request format
 
 cvwelib provides the following request parameters:

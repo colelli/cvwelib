@@ -8,13 +8,14 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
     }
     out['weaknesses'] = []
     for weakness in raw_data['Weakness_Catalog']['Weaknesses']['Weakness']:
+        weakness_id = weakness['@ID']
         item = {
-            'id': f'CWE-{weakness['@ID']}',
+            'id': f'CWE-{weakness_id}',
             'name': weakness['@Name'],
             'abstraction': weakness['@Abstraction'],
             'structure': weakness['@Structure'],
             'status': weakness['@Status'],
-            'description': weakness['Extended_Description'] if 'Extended_Description' in weakness.keys() else weakness['Description'],
+            'description': __prettify_desc(weakness['Extended_Description']) if 'Extended_Description' in weakness.keys() else weakness['Description'],
             'details': weakness['Background_Details']['Background_Detail'] if 'Background_Details' in weakness.keys() else None,
             'related_cwes': [],
             'platforms': {},
@@ -106,8 +107,9 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
 
 
 def __map_cwe(cwe: dict) -> dict:
+    weakness_id = cwe['@CWE_ID']
     return {
-        'id': f'CWE-{cwe['@CWE_ID']}' if '@CWE_ID' in cwe.keys() else None,
+        'id': f'CWE-{weakness_id}' if '@CWE_ID' in cwe.keys() else None,
         'viewId': cwe['@View_ID'] if '@View_ID' in cwe.keys() else None,
         'nature': cwe['@Nature'] if '@Nature' in cwe.keys() else None,
         'type': cwe['@Ordinal'] if '@Ordinal' in cwe.keys() else None
@@ -149,7 +151,7 @@ def __map_detection(detection: dict) -> dict:
 def __map_mitigation(mitigation: dict) -> dict:
     return {
         'phase': mitigation['Phase'] if 'Phase' in mitigation.keys() else None,
-        'description': mitigation['Description'] if 'Description' in mitigation.keys() else None,
+        'description': __prettify_desc(mitigation['Description']) if 'Description' in mitigation.keys() else None,
         'effectiveness': mitigation['Effectiveness'] if 'Effectiveness' in mitigation.keys() else None,
         'notes': mitigation['Effectiveness_Notes'] if 'Effectiveness_Notes' in mitigation.keys() else None
     }
@@ -165,8 +167,9 @@ def __map_taxonomy(tax_map: dict) -> dict:
 
 
 def __map_capec_id(rel: dict) -> dict:
+    capec_id = rel['@CAPEC_ID']
     return {
-        'id': f'CAPEC-{rel['@CAPEC_ID']}'
+        'id': f'CAPEC-{capec_id}'
     }
 
 
@@ -204,8 +207,9 @@ def __collect_references(raw_data: dict) -> list:
 
 
 def __map_category_rel(member: dict) -> dict:
+    weakness_id = member['@CWE_ID']
     return {
-        'cweId': f'CWE-{member['@CWE_ID']}',
+        'cweId': f'CWE-{weakness_id}',
         'viewId': int(member['@View_ID']) if '@View_ID' in member.keys() else None
     }
 
@@ -234,3 +238,27 @@ def __collect_external_refs(raw_data: dict) -> list:
             'urlDate': ext['URL_Date'] if 'URL_Date' in ext.keys() else None
         })
     return out
+
+
+def __prettify_desc(desc) -> str:
+    if isinstance(desc, str):
+        return desc
+    out = __stringify_dict(desc)
+    return " ".join(str(f'{value}') for value in out.values() if value is not None)
+
+
+def __stringify_dict(data: dict) -> dict:
+    out = []
+    for key, value in data.items():
+        if isinstance(value, dict):
+            out.extend(__stringify_dict(value).items())
+        elif isinstance(value, list):
+            new_list = [str(item).encode(encoding='utf-8') for item in value]
+            out.append((key, __stringify_list(new_list)))
+        else:
+            out.append((key, value))
+    return dict(out)
+
+
+def __stringify_list(data: list) -> str:
+    return ' '.join([str(item, 'utf-8') for item in data])
