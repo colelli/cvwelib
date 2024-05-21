@@ -15,7 +15,8 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             'abstraction': weakness['@Abstraction'],
             'structure': weakness['@Structure'],
             'status': weakness['@Status'],
-            'description': __prettify_desc(weakness['Extended_Description']) if 'Extended_Description' in weakness.keys() else weakness['Description'],
+            'short_description': weakness['Description'],
+            'full_description': __prettify_desc(weakness['Extended_Description']) if 'Extended_Description' in weakness.keys() else None,
             'details': weakness['Background_Details']['Background_Detail'] if 'Background_Details' in weakness.keys() else None,
             'related_cwes': [],
             'platforms': {},
@@ -153,7 +154,7 @@ def __map_mitigation(mitigation: dict) -> dict:
         'phase': mitigation['Phase'] if 'Phase' in mitigation.keys() else None,
         'description': __prettify_desc(mitigation['Description']) if 'Description' in mitigation.keys() else None,
         'effectiveness': mitigation['Effectiveness'] if 'Effectiveness' in mitigation.keys() else None,
-        'notes': mitigation['Effectiveness_Notes'] if 'Effectiveness_Notes' in mitigation.keys() else None
+        'notes': __prettify_desc(mitigation['Effectiveness_Notes']) if 'Effectiveness_Notes' in mitigation.keys() else None
     }
 
 
