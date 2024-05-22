@@ -3,6 +3,7 @@ sys.path.append('src')
 import logging
 logging.basicConfig(stream = sys.stderr, level = logging.DEBUG)
 from datetime import datetime
+from copy import deepcopy
 from utils.Utils import save_to_json_file, get_json_from_file, check_cve, check_cwe
 import requests
 import lzma
@@ -14,7 +15,7 @@ __ignored_status = ['Rejected', 'Received']
 __quarantined_status = ['Undergoing Analysis', 'Awaiting Analysis']
 
 
-def __get_json_data_from_xz(url: str):
+def __get_json_data_from_xz(url: str) -> dict:
     """
         Desc:
             Method to retrieve data in .json.xz format from a given url, decompress it and return it in json format
@@ -99,13 +100,34 @@ def save_one_year_json(year: int):
     if year < 1999 or year > datetime.now().year:
         raise ValueError('Invalid input value: please insert valid year from 1999 to today.')
     
-    if not os.path.isdir("./src/_data/"):
+    if not os.path.isdir("./src/_data/"): # check if _data folder exists
         os.makedirs("./src/_data/")
+    
+    if not os.path.isdir(f"./src/_data/{year}"): # check if 'year' folder exists
+        os.makedirs(f"./src/_data/{year}")
     
     request_link = f"https://github.com/fkie-cad/nvd-json-data-feeds/releases/latest/download/CVE-{year}.json.xz"
     formatted_data = __get_json_data_from_xz(request_link)
-      
-    save_to_json_file(formatted_data, f'CVE-{year}.json')
+    sub_cat_list = __get_cve_file_list(formatted_data)
+
+    for cat in sub_cat_list:
+        out = deepcopy(formatted_data)
+        out['cve_items'].clear()
+
+        for cve in formatted_data['cve_items']:
+            if cat == cve['id'][:11]:
+                out['cve_items'].append(cve)
+        out['cve_count'] = len(out['cve_items'])
+
+        save_to_json_file(out, f'{cat}xx.json', f"./src/_data/{year}/")
+
+
+def __get_cve_file_list(data) -> list:
+    # build the file list
+    files = []
+    for cve in data['cve_items']:
+        files.append(cve['id'][:11])
+    return list(set(files))
 
 
 def save_all_years_json() -> bool:
@@ -130,9 +152,33 @@ def get_one_year_json(year: int) -> dict:
         Desc:
             Method to get all the CVEs from the specicied year
         Returns:
-            The reqeusted data
+            :param year: The reqeusted data year
+        Raises:
+            :raises FileNotFoundError: if the requested year's folder does not exist
     """
-    return get_json_from_file(f'CVE-{year}.json')
+    directory = f"./src/_data/{year}/"
+    if not os.path.isdir(directory): # check if 'year' folder exists
+        raise FileNotFoundError('Requested year folder not found')
+
+    out = get_json_from_file(f'CVE-{year}-00xx.json', directory)
+    out['cve_items'].clear()
+
+    for filename in os.scandir(directory):
+        data = get_json_from_file(filename.name, directory)
+        out['cve_items'].extend(data['cve_items'])
+
+    out['cve_count'] = len(out['cve_items'])
+
+    return out
+
+
+def get_one_subcategory_json(cat: str) -> dict:
+    tokens = cat.split('-')
+    directory = f"./src/_data/{tokens[1]}/"
+    if not os.path.isdir(directory): # check if 'year' folder exists
+        raise FileNotFoundError('Requested year folder not found')
+
+    return get_json_from_file(f'{cat}xx.json', directory)
 
 
 def get_one_cve_from_id(cve_id: str, include_quarantined: bool = False) -> dict:
@@ -150,8 +196,7 @@ def get_one_cve_from_id(cve_id: str, include_quarantined: bool = False) -> dict:
     """
     if not check_cve(cve_id):
         raise ValueError('Badly formatted CVE-ID!')
-    tokens =  cve_id.split('-')
-    data = get_one_year_json(tokens[1])
+    data = get_one_subcategory_json(cve_id[:11])
     for cve in data['cve_items']:
         status = cve['vulnStatus']
         if status in __ignored_status or (not include_quarantined and (status in __quarantined_status)):
