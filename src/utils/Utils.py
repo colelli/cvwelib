@@ -6,7 +6,7 @@ import re
 # Regex utils
 
 
-__cve_regex = r"^(CVE-)\d{4}(-)\d{4,5}$"
+__cve_regex = r"^(CVE-)\d{4}(-)\d{4,}$"
 __cwe_regex = r"^(CWE-)\d*$"
 
 
