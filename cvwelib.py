@@ -7,6 +7,8 @@ import logging
 import src.nvdlib.NVDHelper as nh
 import cwelib.CWEHelper as ch
 import atexit
+import os
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
@@ -22,7 +24,7 @@ def __init_app():
     with __app.app_context():
         # before_first_request
         logging.debug('Server starting up...')
-        if nh.start_up_server(debug=True) and ch.start_up_server(debug=True):
+        if nh.start_up_server(debug=True) and ch.start_up_server(debug=False):
             logging.debug('Server ready.')
     
         return __app
@@ -110,7 +112,8 @@ def __cwe_children(cwe_id: str) -> dict:
 
 # App start up
 if __name__ == "__main__":
-    __app.run(port=__default_port)
+    port = int(os.environ.get('PORT', 5001))
+    __app.run(host='0.0.0.0', port=port, debug=True)
 
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: __scheduler.shutdown())

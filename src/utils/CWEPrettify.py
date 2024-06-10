@@ -16,7 +16,7 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             'structure': weakness['@Structure'],
             'status': weakness['@Status'],
             'short_description': weakness['Description'],
-            'full_description': __prettify_desc(weakness['Extended_Description']) if 'Extended_Description' in weakness.keys() else None,
+            'full_description': weakness['Extended_Description'] if 'Extended_Description' in weakness.keys() else None,
             'details': weakness['Background_Details']['Background_Detail'] if 'Background_Details' in weakness.keys() else None,
             'related_cwes': [],
             'platforms': {},
@@ -25,7 +25,7 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             'consequences': [],
             'detectionMethods': [],
             'mitigations': [],
-            'demonstrativeExamples': weakness['Demonstrative_Examples'] if 'Demonstrative_Examples' in weakness.keys() else None,
+            'demonstrativeExamples': weakness['Demonstrative_Examples']['Demonstrative_Example'] if 'Demonstrative_Examples' in weakness.keys() else None,
             'observedExamples': weakness['Observed_Examples'] if 'Observed_Examples' in weakness.keys() else None,
             'functionalAreas': [],
             'affectedResources': [],
@@ -35,7 +35,7 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             'mappingNotes': weakness['Mapping_Notes'] if 'Mapping_Notes' in weakness.keys() else None,
             'contentHistory': weakness['Content_History'] if 'Content_History' in weakness.keys() else None,
         }
-
+    
         # Collecting all CWEs
         if 'Related_Weaknesses' in weakness.keys():
             for cwe in weakness['Related_Weaknesses']['Related_Weakness']:
@@ -92,6 +92,9 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             for ref in weakness['References']['Reference']:
                 item['references'].append(__map_cwe_references(ref))
 
+        item = __collapse_value_for_key(item, 'description')
+        item = __collapse_value_for_key(item, 'Example_Code')
+        item = __collapse_value_for_key(item, 'Note')
         out['weaknesses'].append(item)
     # end-for
     
@@ -152,9 +155,9 @@ def __map_detection(detection: dict) -> dict:
 def __map_mitigation(mitigation: dict) -> dict:
     return {
         'phase': mitigation['Phase'] if 'Phase' in mitigation.keys() else None,
-        'description': __prettify_desc(mitigation['Description']) if 'Description' in mitigation.keys() else None,
+        'description': mitigation['Description'] if 'Description' in mitigation.keys() else None,
         'effectiveness': mitigation['Effectiveness'] if 'Effectiveness' in mitigation.keys() else None,
-        'notes': __prettify_desc(mitigation['Effectiveness_Notes']) if 'Effectiveness_Notes' in mitigation.keys() else None
+        'notes': mitigation['Effectiveness_Notes'] if 'Effectiveness_Notes' in mitigation.keys() else None
     }
 
 
@@ -241,25 +244,32 @@ def __collect_external_refs(raw_data: dict) -> list:
     return out
 
 
-def __prettify_desc(desc) -> str:
-    if isinstance(desc, str):
-        return desc
-    out = __stringify_dict(desc)
-    return " ".join(str(f'{value}') for value in out.values() if value is not None)
+def __concat_sub_values(d):
+    list_of_string = []
+    if isinstance(d, str):
+        list_of_string.append(d)
+    elif isinstance(d, dict):
+        for key, value in d.items():
+            if 'style' in key:
+                continue
+            elif '@' in key and isinstance(value, str): # if the key is an attribute, concatenate the value with the key name
+                value = f'{key[1:]}: {value}, '
+            list_of_string.extend(__concat_sub_values(value))
+    elif isinstance(d, list):
+        for item in d:
+            list_of_string.extend(__concat_sub_values(item))
+            
+    return list_of_string
 
-
-def __stringify_dict(data: dict) -> dict:
-    out = []
-    for key, value in data.items():
-        if isinstance(value, dict):
-            out.extend(__stringify_dict(value).items())
-        elif isinstance(value, list):
-            new_list = [str(item).encode(encoding='utf-8') for item in value]
-            out.append((key, __stringify_list(new_list)))
-        else:
-            out.append((key, value))
-    return dict(out)
-
-
-def __stringify_list(data: list) -> str:
-    return ' '.join([str(item, 'utf-8') for item in data])
+def __collapse_value_for_key(data, key_to_search_for):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key_to_search_for.lower() in key.lower():
+                concatenated_values = ' '.join(__concat_sub_values(value))
+                data[key] = concatenated_values
+            else:
+                __collapse_value_for_key(value, key_to_search_for)
+    elif isinstance(data, list):
+        for item in data:
+            __collapse_value_for_key(item, key_to_search_for)
+    return data
