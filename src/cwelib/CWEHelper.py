@@ -121,3 +121,14 @@ def get_cwe_children(cwe_id: str) -> list:
             if rel['id'] == cwe_id and rel['nature'] == 'ChildOf':
                 out.append(cwe)
     return out
+
+
+def get_cwe_count() -> int:
+    """
+        Desc:
+            Method to fetch the current CWE database count
+        Returns:
+            Integer representing current CWE count
+    """
+    data = get_all_cwes()
+    return data['weaknessCatalog']['cweCount']

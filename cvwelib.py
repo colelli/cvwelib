@@ -2,6 +2,7 @@ from flask import Flask, request, abort
 from flask_cors import CORS, cross_origin
 import sys
 sys.path.append('src')
+import os
 from utils.Utils import check_cve, check_cwe
 import logging
 import src.nvdlib.NVDHelper as nh
@@ -55,6 +56,8 @@ def get_cve():
             return __cves_from_year(args[arg])
         if arg == 'keywordSearch':
             return __cves_from_desc(args[arg], True if 'keywordExactMatch' in args.keys() else False)
+        if arg == 'cveCount':
+            return __cve_count()
     
     abort(400) # No matching function found   
 
@@ -73,6 +76,10 @@ def __cves_from_year(year: str) -> dict:
 
 def __cves_from_desc(keyword: str, exact_match: bool) -> dict:
     return nh.get_cves_from_desc(keyword if keyword.strip() != "" else abort(400), exact_match)
+
+
+def __cve_count() -> dict:
+    return {'cveCount': nh.get_cve_count()}
 
 
 @__app.route('/api/get_cwe', methods = ['GET'])
@@ -94,6 +101,8 @@ def get_cwe():
             return __cwe_parents(args[arg])
         if arg == 'getChildren':
             return __cwe_children(args[arg])
+        if arg == 'cweCount':
+            return __cwe_count()
     
     abort(400) # No matching function found
 
@@ -110,10 +119,14 @@ def __cwe_children(cwe_id: str) -> dict:
     return ch.get_cwe_children(cwe_id if check_cwe(cwe_id) else abort(400))
 
 
+def __cwe_count() -> dict:
+    return {'cweCount': ch.get_cwe_count()}
+
+
 # App start up
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5001))
-    __app.run(host='0.0.0.0', port=port, debug=True)
+    port = int(os.environ.get('PORT', __default_port))
+    __app.run(host = '0.0.0.0', port = port, debug = True)
 
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: __scheduler.shutdown())

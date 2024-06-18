@@ -16,7 +16,7 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             'structure': weakness['@Structure'],
             'status': weakness['@Status'],
             'short_description': weakness['Description'],
-            'full_description': weakness['Extended_Description'] if 'Extended_Description' in weakness.keys() else None,
+            'full_description':weakness['Extended_Description'] if 'Extended_Description' in weakness.keys() else None,
             'details': weakness['Background_Details']['Background_Detail'] if 'Background_Details' in weakness.keys() else None,
             'related_cwes': [],
             'platforms': {},
@@ -92,9 +92,11 @@ def get_pretty_cwe_json(raw_data: dict) -> dict:
             for ref in weakness['References']['Reference']:
                 item['references'].append(__map_cwe_references(ref))
 
+        # Collapse Values
         item = __collapse_value_for_key(item, 'description')
         item = __collapse_value_for_key(item, 'Example_Code')
         item = __collapse_value_for_key(item, 'Note')
+
         out['weaknesses'].append(item)
     # end-for
     
@@ -244,24 +246,25 @@ def __collect_external_refs(raw_data: dict) -> list:
     return out
 
 
-def __concat_sub_values(d):
+def __concat_sub_values(data) -> list[str]:
     list_of_string = []
-    if isinstance(d, str):
-        list_of_string.append(d)
-    elif isinstance(d, dict):
-        for key, value in d.items():
+    if isinstance(data, str):
+        list_of_string.append(data)
+    elif isinstance(data, dict):
+        for key, value in data.items():
             if 'style' in key:
                 continue
-            elif '@' in key and isinstance(value, str): # if the key is an attribute, concatenate the value with the key name
+            elif '@' in key and isinstance(value, str): 
+                # if the key is an attribute, concatenate the value with the key name
                 value = f'{key[1:]}: {value}, '
             list_of_string.extend(__concat_sub_values(value))
-    elif isinstance(d, list):
-        for item in d:
+    elif isinstance(data, list):
+        for item in data:
             list_of_string.extend(__concat_sub_values(item))
-            
+
     return list_of_string
 
-def __collapse_value_for_key(data, key_to_search_for):
+def __collapse_value_for_key(data, key_to_search_for: str):
     if isinstance(data, dict):
         for key, value in data.items():
             if key_to_search_for.lower() in key.lower():
@@ -272,4 +275,5 @@ def __collapse_value_for_key(data, key_to_search_for):
     elif isinstance(data, list):
         for item in data:
             __collapse_value_for_key(item, key_to_search_for)
+
     return data
