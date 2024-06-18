@@ -86,7 +86,7 @@ def start_up_server(debug: bool = False) -> bool:
     return save_all_years_json()
 
 
-def save_one_year_json(year: int):
+def save_one_year_json(year: int) -> int:
     """
         Desc:
             This method allows the retrieval (and local save) of a specified year CVE dataset from the following repository:
@@ -94,6 +94,8 @@ def save_one_year_json(year: int):
             The data is downloaded in .xz format, extracted and saved to .json in the local /_data folder in the format 'CVE-<YEAR>.json'.
         Params:
             :param year: The desired year to fetch
+        Returns:
+            :returns: The count of requested year CVEs
         Raises:
             :raises ValueError: if the selected year is not valid. Must be in the range [1999, datetime.now().year]
     """
@@ -120,6 +122,7 @@ def save_one_year_json(year: int):
         out['cve_count'] = len(out['cve_items'])
 
         save_to_json_file(out, f'{cat}xx.json', f"./src/_data/{year}/")
+    return formatted_data['cve_count']
 
 
 def __get_cve_file_list(data) -> list:
@@ -139,11 +142,13 @@ def save_all_years_json() -> bool:
         Returns:
             True if the process ends correctly
     """
+    cve_count = 0
     for year in range(1999, datetime.now().year + 1):
         try:
-            save_one_year_json(year)
+            cve_count += save_one_year_json(year)
         except ValueError:
             return False
+    save_to_json_file({'cve_count': cve_count}, 'CVE-Count.json')
     return True
 
 
@@ -274,3 +279,14 @@ def get_cves_from_cwe(cwe_id: str):
                     out.append(cve)
                     break
     return out
+
+
+def get_cve_count() -> int:
+    """
+        Desc:
+            Method to retrieve the total count of all analyzed CVEs.
+        Returns:
+            :returns: The total analyzed CVE count
+    """
+    data = get_json_from_file('CVE-Count.json')
+    return data['cve_count']
