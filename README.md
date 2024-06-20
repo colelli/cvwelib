@@ -29,11 +29,13 @@ cvwelib provides the following request parameters:
     - `cweId` allows to fetch all CVEs related to the specified CWE-ID
     - `keywordSearch` allows to fetch CVEs based on the given keyword in their description
     - `keywordExactMatch` specifies that the keyword given must exactly match
+    - `cveCount` allows to fetch the total CVE count analyzed by the system
 - CWE API
     - `all` allows to fetch the entire CWE json file 
     - `cweId` allows to fetch the specifcied CWE-ID data
     - `getParents` allows to fetch the list of parents for the given CWE-ID
     - `getChildren` allows to fetch the list of children for the given CWE-ID
+    - `cweCount` allows to fetch the total CWE count analyzed by the system
 
 ### Request examples
 
