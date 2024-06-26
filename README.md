@@ -4,20 +4,20 @@ CVE & CWE Lib allows local querying for CVE and CWE data.
 
 ### Data source & fetching
 
-cvwelib fetches its data from the following community project: [Click](https://github.com/fkie-cad/nvd-json-data-feeds)
+cvwelib fetches its data from the following community project: [fkie-cad](https://github.com/fkie-cad/nvd-json-data-feeds)
 
 The project is structured so that the local server will automatically download all the needed .json files upon startup.
-In case of an existing server, the data will be automatically updated each day based on the `Modified` feeds
+In case of an existing server, the data will be automatically updated each day based on the `Modified` feeds.
 
-```plain
+```bash
 CVE-Modified.json # CVEs that were modified or added in the previous eight days
 ```
 
 ### Before running the code
 
 Since the code is still in development, before running it for the first time, it is adviced to open the `cvwelib.py` file and change
-the `debug` mode from `True` to `False` on line 25. This will allow the script to download all the necessary data at each server start-up. As of
-right now it is intended to be set on `True` as the code undergoes modifications.
+the `debug` mode from `True` to `False` on line 28. This will allow the script to download all the necessary data at each server start-up. As of
+right now it is intended to be set on `True` as the code undergoes frequent modifications.
 
 ## Request format
 
@@ -41,46 +41,54 @@ cvwelib provides the following request parameters:
 
 CVE API Examples
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cve?year=<YEAR> # Get all CVEs related to inputted year
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cve?cveId=<CVE-ID> # Get data of the specied CVE-ID (excludes quarantined items)
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cve?cveId=<CVE-ID>&includeQuarantined # Get data of the specied CVE-ID even if quarantined
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cve?cweId=<CWE-ID> # Get all CVEs related to inputted CWE
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cve?keywordSearch=<KEY-WORD> # Get all CVEs containing any specified keyword in their description
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cve?keywordSearch=<KEY-WORD>&keywordExactMatch # Get all CVEs matching the keyword exactly
+```
+
+```bash
+<HOST>:<PORT>/api/get_cve?cveCount # Get the total CVE count analyzed by the system
 ```
 
 CWE API Examples
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cwe?all # Get all CWEs
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cwe?cweId=<CWE-ID> # Get data of the specied CWE-ID
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cwe?getParents=<CWE-ID> # Get all parents of the inputted CWE
 ```
 
-```plain
+```bash
 <HOST>:<PORT>/api/get_cwe?getChildren=<CWE-ID> # Get all children of the inputted CWE
+```
+
+```bash
+<HOST>:<PORT>/api/get_cwe?cweCount # Get the total CWE count analyzed by the system
 ```
 
 ## Non-Endorsement Clause
